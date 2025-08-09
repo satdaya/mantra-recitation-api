@@ -27,13 +27,24 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
     
-    # Database Settings - Snowflake
+    # Database Settings - Snowflake (Secure Configuration)
     SNOWFLAKE_ACCOUNT: str = ""
     SNOWFLAKE_USER: str = ""
     SNOWFLAKE_PASSWORD: str = ""
     SNOWFLAKE_DATABASE: str = "MANTRA_TRACKER"
-    SNOWFLAKE_SCHEMA: str = "RECITATIONS" 
+    SNOWFLAKE_SCHEMA: str = "ICEBERG_TABLES"  # Updated to match SQL setup
     SNOWFLAKE_WAREHOUSE: str = "COMPUTE_WH"
+    SNOWFLAKE_ROLE: Optional[str] = None  # Optional: specify role for least privilege
+    
+    # Security Settings
+    ENABLE_SECURITY_VALIDATION: bool = True
+    REQUIRE_SECURE_BUCKETS: bool = True
+    MAX_CONNECTION_RETRIES: int = 3
+    CONNECTION_TIMEOUT_SECONDS: int = 60
+    
+    # Storage Security
+    STORAGE_ENCRYPTION_REQUIRED: bool = True
+    BLOCK_PUBLIC_BUCKET_ACCESS: bool = True
     
     # Optional: Airtable Integration
     AIRTABLE_BASE_ID: Optional[str] = None
