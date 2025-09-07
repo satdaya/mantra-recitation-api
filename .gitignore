@@ -59,3 +59,9 @@ Thumbs.db
 
 # Snowflake credentials
 snowflake_config.json
+
+# Terraform
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate*

@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Project Configuration
+project_name = "mantra-app"
+environment  = "dev"
+aws_region   = "us-west-2"
+
+# Snowflake Configuration
+snowflake_account   = "your-snowflake-account"
+snowflake_username  = "your-snowflake-username"
+snowflake_password  = "your-snowflake-password"
+snowflake_region    = "us-west-2"
+snowflake_warehouse = "COMPUTE_WH"
+snowflake_database  = "MANTRA_DB"
+snowflake_schema    = "PUBLIC"
