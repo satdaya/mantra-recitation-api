@@ -26,6 +26,7 @@ MANIFEST
 venv/
 ENV/
 env/
+mantra_app/
 
 # Environment Variables
 .env

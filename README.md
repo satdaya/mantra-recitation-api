@@ -14,8 +14,8 @@ FastAPI backend for the Mantra Recitation Tracker application.
 
 1. Create virtual environment:
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python3 -m venv mantra_app
+source mantra_app/bin/activate  # On Windows: mantra_app\Scripts\activate
 ```
 
 2. Install dependencies:
