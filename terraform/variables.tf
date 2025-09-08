@@ -57,3 +57,15 @@ variable "snowflake_schema" {
   type        = string
   default     = "PUBLIC"
 }
+
+variable "mantra_app_username" {
+  description = "Username for the Mantra app Snowflake user"
+  type        = string
+  default     = "MANTRA_APP_USER"
+}
+
+variable "mantra_app_password" {
+  description = "Password for the Mantra app Snowflake user"
+  type        = string
+  sensitive   = true
+}

@@ -5,11 +5,15 @@ project_name = "mantra-app"
 environment  = "dev"
 aws_region   = "us-west-2"
 
-# Snowflake Configuration
+# Snowflake Configuration (Admin credentials for Terraform)
 snowflake_account   = "your-snowflake-account"
-snowflake_username  = "your-snowflake-username"
-snowflake_password  = "your-snowflake-password"
+snowflake_username  = "your-accountadmin-username"
+snowflake_password  = "your-accountadmin-password"
 snowflake_region    = "us-west-2"
 snowflake_warehouse = "COMPUTE_WH"
 snowflake_database  = "MANTRA_DB"
 snowflake_schema    = "PUBLIC"
+
+# Application User Credentials (will be created by Terraform)
+mantra_app_username = "MANTRA_APP_USER"
+mantra_app_password = "secure-app-password"

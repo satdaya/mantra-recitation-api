@@ -65,3 +65,9 @@ terraform/terraform.tfvars
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate*
+
+# AWS Secrets Manager local files
+secrets_manager/
+*.secrets
+aws_secrets.json
+snowflake_secrets.json
