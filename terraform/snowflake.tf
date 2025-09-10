@@ -12,7 +12,7 @@ resource "snowflake_schema" "mantra_schema" {
 }
 
 # Custom Role for Mantra App
-resource "snowflake_role" "mantra_app_role" {
+resource "snowflake_account_role" "mantra_app_role" {
   name    = "MANTRA_APP_ROLE"
   comment = "Role for Mantra Recitation API with required permissions"
 }
@@ -26,90 +26,78 @@ resource "snowflake_user" "mantra_app_user" {
   disabled     = false
   
   default_warehouse = var.snowflake_warehouse
-  default_role      = snowflake_role.mantra_app_role.name
+  default_role      = snowflake_account_role.mantra_app_role.name
   default_namespace = "${snowflake_database.mantra_db.name}.${snowflake_schema.mantra_schema.name}"
 
   must_change_password = false
 }
 
 # Grant role to user
-resource "snowflake_role_grants" "mantra_app_user_grant" {
-  role_name = snowflake_role.mantra_app_role.name
-  users     = [snowflake_user.mantra_app_user.name]
+resource "snowflake_grant_account_role" "mantra_app_user_grant" {
+  role_name = snowflake_account_role.mantra_app_role.name
+  user_name = snowflake_user.mantra_app_user.name
 }
 
 # Grant database usage to role
-resource "snowflake_database_grant" "mantra_db_usage" {
-  database_name = snowflake_database.mantra_db.name
-  privilege     = "USAGE"
-  roles         = [snowflake_role.mantra_app_role.name]
+resource "snowflake_grant_privileges_to_account_role" "mantra_db_usage" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["USAGE"]
+  
+  on_account_object {
+    object_type = "DATABASE"
+    object_name = snowflake_database.mantra_db.name
+  }
 }
 
 # Grant schema usage to role
-resource "snowflake_schema_grant" "mantra_schema_usage" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "USAGE"
-  roles         = [snowflake_role.mantra_app_role.name]
+resource "snowflake_grant_privileges_to_account_role" "mantra_schema_usage" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["USAGE"]
+  
+  on_schema {
+    schema_name = "\"${snowflake_database.mantra_db.name}\".\"${snowflake_schema.mantra_schema.name}\""
+  }
 }
 
 # Grant table privileges to role
-resource "snowflake_schema_grant" "mantra_schema_create_table" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "CREATE TABLE"
-  roles         = [snowflake_role.mantra_app_role.name]
+resource "snowflake_grant_privileges_to_account_role" "mantra_schema_create_table" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["CREATE TABLE"]
+  
+  on_schema {
+    schema_name = "\"${snowflake_database.mantra_db.name}\".\"${snowflake_schema.mantra_schema.name}\""
+  }
 }
 
-resource "snowflake_schema_grant" "mantra_schema_create_view" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "CREATE VIEW"
-  roles         = [snowflake_role.mantra_app_role.name]
+resource "snowflake_grant_privileges_to_account_role" "mantra_schema_create_view" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["CREATE VIEW"]
+  
+  on_schema {
+    schema_name = "\"${snowflake_database.mantra_db.name}\".\"${snowflake_schema.mantra_schema.name}\""
+  }
 }
 
 # Grant warehouse usage to role
-resource "snowflake_warehouse_grant" "mantra_warehouse_usage" {
-  warehouse_name = var.snowflake_warehouse
-  privilege      = "USAGE"
-  roles          = [snowflake_role.mantra_app_role.name]
-}
-
-resource "snowflake_warehouse_grant" "mantra_warehouse_operate" {
-  warehouse_name = var.snowflake_warehouse
-  privilege      = "OPERATE"
-  roles          = [snowflake_role.mantra_app_role.name]
+resource "snowflake_grant_privileges_to_account_role" "mantra_warehouse_usage" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["USAGE", "OPERATE"]
+  
+  on_account_object {
+    object_type = "WAREHOUSE"
+    object_name = var.snowflake_warehouse
+  }
 }
 
 # Grant future table privileges (for tables created later)
-resource "snowflake_table_grant" "future_tables_select" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "SELECT"
-  roles         = [snowflake_role.mantra_app_role.name]
-  on_future     = true
-}
-
-resource "snowflake_table_grant" "future_tables_insert" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "INSERT"
-  roles         = [snowflake_role.mantra_app_role.name]
-  on_future     = true
-}
-
-resource "snowflake_table_grant" "future_tables_update" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "UPDATE"
-  roles         = [snowflake_role.mantra_app_role.name]
-  on_future     = true
-}
-
-resource "snowflake_table_grant" "future_tables_delete" {
-  database_name = snowflake_database.mantra_db.name
-  schema_name   = snowflake_schema.mantra_schema.name
-  privilege     = "DELETE"
-  roles         = [snowflake_role.mantra_app_role.name]
-  on_future     = true
+resource "snowflake_grant_privileges_to_account_role" "future_tables" {
+  account_role_name = snowflake_account_role.mantra_app_role.name
+  privileges        = ["SELECT", "INSERT", "UPDATE", "DELETE"]
+  
+  on_schema_object {
+    future {
+      object_type_plural = "TABLES"
+      in_schema          = "\"${snowflake_database.mantra_db.name}\".\"${snowflake_schema.mantra_schema.name}\""
+    }
+  }
 }

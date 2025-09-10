@@ -29,5 +29,8 @@ numpy==1.26.2
 # Environment management
 python-dotenv==1.0.0
 
+# AWS integration
+boto3==1.34.0
+
 # Optional: For Iceberg integration
 # pyiceberg==0.5.1

@@ -2,8 +2,11 @@
 Configuration settings using Pydantic Settings
 """
 
+import json
+import boto3
 from typing import List, Optional
 from pydantic import BaseSettings, AnyHttpUrl, validator
+from functools import lru_cache
 
 
 class Settings(BaseSettings):
@@ -59,5 +62,42 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-# Create settings instance
-settings = Settings()
+@lru_cache()
+def get_secret(secret_name: str) -> dict:
+    """Retrieve secret from AWS Secrets Manager"""
+    try:
+        client = boto3.client('secretsmanager')
+        response = client.get_secret_value(SecretId=secret_name)
+        return json.loads(response['SecretString'])
+    except Exception as e:
+        print(f"Error retrieving secret {secret_name}: {e}")
+        return {}
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Get application settings with secrets from AWS Secrets Manager"""
+    settings = Settings()
+    
+    # Load AWS credentials from Secrets Manager
+    aws_secret_name = "mantra-app-dev-aws-credentials"
+    aws_creds = get_secret(aws_secret_name)
+    
+    # Load Snowflake credentials from Secrets Manager
+    snowflake_secret_name = "mantra-app-dev-snowflake-credentials"
+    snowflake_creds = get_secret(snowflake_secret_name)
+    
+    # Update settings with retrieved credentials
+    if snowflake_creds:
+        settings.SNOWFLAKE_ACCOUNT = snowflake_creds.get('SNOWFLAKE_ACCOUNT', settings.SNOWFLAKE_ACCOUNT)
+        settings.SNOWFLAKE_USER = snowflake_creds.get('SNOWFLAKE_USERNAME', settings.SNOWFLAKE_USER)
+        settings.SNOWFLAKE_PASSWORD = snowflake_creds.get('SNOWFLAKE_PASSWORD', settings.SNOWFLAKE_PASSWORD)
+        settings.SNOWFLAKE_DATABASE = snowflake_creds.get('SNOWFLAKE_DATABASE', settings.SNOWFLAKE_DATABASE)
+        settings.SNOWFLAKE_SCHEMA = snowflake_creds.get('SNOWFLAKE_SCHEMA', settings.SNOWFLAKE_SCHEMA)
+        settings.SNOWFLAKE_WAREHOUSE = snowflake_creds.get('SNOWFLAKE_WAREHOUSE', settings.SNOWFLAKE_WAREHOUSE)
+    
+    return settings
+
+
+# Create settings instance (use the function to get secrets)
+settings = get_settings()

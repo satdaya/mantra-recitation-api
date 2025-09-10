@@ -24,6 +24,7 @@ provider "snowflake" {
   password   = var.snowflake_password
   region     = var.snowflake_region
   warehouse  = var.snowflake_warehouse
+  role       = "USERADMIN"
 }
 
 # S3 Bucket for Mantra App
