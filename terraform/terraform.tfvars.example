@@ -17,3 +17,7 @@ snowflake_schema    = "PUBLIC"
 # Application User Credentials (will be created by Terraform)
 mantra_app_username = "MANTRA_APP_USER"
 mantra_app_password = "secure-app-password"
+
+# Snowflake S3 Integration (from DESC STORAGE INTEGRATION output)
+snowflake_account_id = "790357010268"
+snowflake_external_id = "BDA93228_SFCRole=13_5tBJGUVZajNKg8dclqXhgLSF7Q0="
