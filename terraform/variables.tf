@@ -69,3 +69,15 @@ variable "mantra_app_password" {
   type        = string
   sensitive   = true
 }
+
+variable "snowflake_account_id" {
+  description = "Snowflake AWS account ID for cross-account access"
+  type        = string
+  default     = "123456789012"  # This will be provided by Snowflake
+}
+
+variable "snowflake_external_id" {
+  description = "External ID for Snowflake cross-account access"
+  type        = string
+  sensitive   = true
+}

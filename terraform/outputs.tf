@@ -39,3 +39,8 @@ output "snowflake_credentials_secret_arn" {
   description = "ARN of Snowflake credentials secret in Secrets Manager"
   value       = aws_secretsmanager_secret.snowflake_credentials.arn
 }
+
+output "snowflake_s3_role_arn" {
+  description = "ARN of IAM role for Snowflake S3 access"
+  value       = aws_iam_role.snowflake_s3_role.arn
+}

@@ -156,3 +156,63 @@ resource "aws_secretsmanager_secret_version" "snowflake_credentials_version" {
     SNOWFLAKE_SCHEMA    = var.snowflake_schema
   })
 }
+
+# IAM Role for Snowflake to access S3 (for Iceberg)
+resource "aws_iam_role" "snowflake_s3_role" {
+  name = "${var.project_name}-snowflake-s3-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${var.snowflake_account_id}:root"
+        }
+        Condition = {
+          StringEquals = {
+            "sts:ExternalId" = var.snowflake_external_id
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
+# IAM Policy for Snowflake S3 access
+resource "aws_iam_policy" "snowflake_s3_policy" {
+  name        = "${var.project_name}-snowflake-s3-policy"
+  description = "Policy for Snowflake to access S3 bucket for Iceberg"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.mantra_app_bucket.arn,
+          "${aws_s3_bucket.mantra_app_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Attach policy to Snowflake role
+resource "aws_iam_role_policy_attachment" "snowflake_s3_attach" {
+  role       = aws_iam_role.snowflake_s3_role.name
+  policy_arn = aws_iam_policy.snowflake_s3_policy.arn
+}
