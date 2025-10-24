@@ -71,3 +71,7 @@ secrets_manager/
 *.secrets
 aws_secrets.json
 snowflake_secrets.json
+
+# pim keys
+rsa_key.p8
+rsa_key.pub

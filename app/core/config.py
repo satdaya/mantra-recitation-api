@@ -19,8 +19,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     
     # CORS Settings
-    ALLOWED_ORIGINS: List[AnyHttpUrl] = []
-    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+    ALLOWED_ORIGINS: List[AnyHttpUrl] = [
+        "http://localhost:3000",  # React dev server
+        "http://127.0.0.1:3000",  # React dev server alternative
+        "http://localhost:5173",  # Vite dev server
+        "http://127.0.0.1:5173"   # Vite dev server alternative
+    ]
+    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1", "*"]
     
     @validator("ALLOWED_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: str | List[str]) -> List[str] | str:

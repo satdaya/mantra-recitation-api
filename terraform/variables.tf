@@ -16,8 +16,14 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "snowflake_account" {
-  description = "Snowflake account identifier"
+variable "snowflake_account_name" {
+  description = "Snowflake account name (part after organization-)"
+  type        = string
+  sensitive   = true
+}
+
+variable "snowflake_organization_name" {
+  description = "Snowflake organization name"
   type        = string
   sensitive   = true
 }

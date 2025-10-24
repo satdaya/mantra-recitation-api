@@ -19,12 +19,12 @@ provider "aws" {
 
 # Configure Snowflake Provider
 provider "snowflake" {
-  account    = var.snowflake_account
-  username   = var.snowflake_username
-  password   = var.snowflake_password
-  region     = var.snowflake_region
-  warehouse  = var.snowflake_warehouse
-  role       = "USERADMIN"
+  account_name      = var.snowflake_account_name
+  organization_name = var.snowflake_organization_name
+  username          = var.snowflake_username
+  password          = var.snowflake_password
+  warehouse         = var.snowflake_warehouse
+  role              = "USERADMIN"
 }
 
 # S3 Bucket for Mantra App
