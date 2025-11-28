@@ -64,6 +64,7 @@ snowflake_config.json
 terraform/terraform.tfvars
 terraform/.terraform/
 terraform/.terraform.lock.hcl
+terraform/snowflake-trust-policy.json 
 terraform/terraform.tfstate*
 
 # AWS Secrets Manager local files
@@ -72,6 +73,12 @@ secrets_manager/
 aws_secrets.json
 snowflake_secrets.json
 
-# pim keys
+# Snowflake RSA keys
 rsa_key.p8
 rsa_key.pub
+
+# Terraform sensitive files
+terraform/snowflake-trust-policy.json
+
+# Snowflake setup with real values
+snowflake_iceberg_setup.sql

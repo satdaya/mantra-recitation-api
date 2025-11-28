@@ -1,11 +1,41 @@
 -- Optimal Iceberg Table Structure for Mantra Recitation App
 -- Using Snowflake as Iceberg Catalog
 
+-- INSTRUCTIONS:
+-- 1. Copy this file to snowflake_iceberg_setup.sql
+-- 2. Replace the following placeholders:
+--    - YOUR_AWS_ACCOUNT_ID
+--    - YOUR_S3_BUCKET_NAME
+--    - YOUR_IAM_ROLE_NAME
+-- 3. Run in Snowflake
+
 -- Create database and schema
 CREATE DATABASE IF NOT EXISTS MANTRA_TRACKER;
 USE DATABASE MANTRA_TRACKER;
 CREATE SCHEMA IF NOT EXISTS ICEBERG_TABLES;
 USE SCHEMA ICEBERG_TABLES;
+
+-- Step 1: Create Storage Integration (if not already created)
+-- Note: Requires ACCOUNTADMIN role
+USE ROLE ACCOUNTADMIN;
+
+CREATE STORAGE INTEGRATION IF NOT EXISTS snowflake_s3_integration
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = 'S3'
+  ENABLED = TRUE
+  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/YOUR_IAM_ROLE_NAME'
+  STORAGE_ALLOWED_LOCATIONS = ('s3://YOUR_S3_BUCKET_NAME/iceberg/');
+
+-- Step 2: Create External Volume for Iceberg tables
+CREATE EXTERNAL VOLUME IF NOT EXISTS iceberg_storage_volume
+  STORAGE_LOCATIONS = (
+    (
+      NAME = 'mantra-iceberg-storage'
+      STORAGE_PROVIDER = 'S3'
+      STORAGE_BASE_URL = 's3://YOUR_S3_BUCKET_NAME/iceberg/'
+      STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/YOUR_IAM_ROLE_NAME'
+    )
+  );
 
 -- 1. MANTRAS TABLE (Dimension - Small, slow-changing)
 CREATE OR REPLACE ICEBERG TABLE mantras (
@@ -76,7 +106,7 @@ CREATE OR REPLACE DYNAMIC TABLE daily_stats
 TARGET_LAG = '1 hour'
 WAREHOUSE = 'COMPUTE_WH'
 AS
-SELECT 
+SELECT
     user_id,
     recitation_date,
     COUNT(*) as total_sessions,
@@ -89,11 +119,11 @@ FROM recitations
 GROUP BY user_id, recitation_date;
 
 -- Monthly trends
-CREATE OR REPLACE DYNAMIC TABLE monthly_trends  
+CREATE OR REPLACE DYNAMIC TABLE monthly_trends
 TARGET_LAG = '1 day'
 WAREHOUSE = 'COMPUTE_WH'
 AS
-SELECT 
+SELECT
     user_id,
     recitation_year,
     recitation_month,
