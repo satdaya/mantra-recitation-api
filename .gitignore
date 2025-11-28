@@ -78,7 +78,7 @@ rsa_key.p8
 rsa_key.pub
 
 # Terraform sensitive files
-terraform/snowflake-trust-policy.json
+terraform/snowflake-trust-policy*.json
 
 # Snowflake setup with real values
 snowflake_iceberg_setup.sql
