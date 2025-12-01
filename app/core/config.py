@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     # Database Settings - Snowflake (Secure Configuration)
     SNOWFLAKE_ACCOUNT: str = ""
     SNOWFLAKE_USER: str = ""
-    SNOWFLAKE_PASSWORD: str = ""
+    SNOWFLAKE_PASSWORD: str = ""  # Optional: use password OR private key
+    SNOWFLAKE_PRIVATE_KEY_PATH: Optional[str] = None  # Path to RSA private key
     SNOWFLAKE_DATABASE: str = "MANTRA_TRACKER"
     SNOWFLAKE_SCHEMA: str = "ICEBERG_TABLES"  # Updated to match SQL setup
     SNOWFLAKE_WAREHOUSE: str = "COMPUTE_WH"

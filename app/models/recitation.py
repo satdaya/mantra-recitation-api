@@ -11,7 +11,7 @@ class RecitationBase(BaseModel):
     """Base recitation model"""
     mantra_name: str = Field(..., min_length=1, max_length=200)
     count: int = Field(..., ge=1)
-    duration_minutes: int = Field(..., ge=1)
+    duration_minutes: int = Field(1, ge=0)  # Optional, defaults to 1 if not provided
     recitation_timestamp: datetime
     notes: Optional[str] = Field(None, max_length=1000)
 

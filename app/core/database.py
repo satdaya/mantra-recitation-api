@@ -4,6 +4,9 @@ Secure Snowflake database connection with private bucket configuration
 
 import logging
 from typing import Optional
+from pathlib import Path
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 import snowflake.connector
 from snowflake.connector import DictCursor
 from sqlalchemy import create_engine
@@ -26,21 +29,45 @@ class SnowflakeConnection:
     def get_connection_params(self) -> dict:
         """
         Get secure connection parameters for Snowflake
+        Supports both password and private key authentication
         """
-        return {
+        params = {
             'account': settings.SNOWFLAKE_ACCOUNT,
             'user': settings.SNOWFLAKE_USER,
-            'password': settings.SNOWFLAKE_PASSWORD,
             'database': settings.SNOWFLAKE_DATABASE,
             'schema': settings.SNOWFLAKE_SCHEMA,
             'warehouse': settings.SNOWFLAKE_WAREHOUSE,
             # Security settings
-            'authenticator': 'snowflake',  # Use Snowflake native auth
             'autocommit': False,  # Explicit transaction control
             'client_session_keep_alive': True,
             'network_timeout': 60,
             'login_timeout': 60,
         }
+
+        # Use private key if provided, otherwise use password
+        if settings.SNOWFLAKE_PRIVATE_KEY_PATH:
+            try:
+                # Read and load the private key
+                key_path = Path(settings.SNOWFLAKE_PRIVATE_KEY_PATH)
+                with open(key_path, "rb") as key_file:
+                    private_key = serialization.load_pem_private_key(
+                        key_file.read(),
+                        password=None,  # Assuming unencrypted key
+                        backend=default_backend()
+                    )
+                params['private_key'] = private_key
+                logger.info("Using private key authentication")
+            except Exception as e:
+                logger.error(f"Failed to load private key: {e}")
+                raise
+        elif settings.SNOWFLAKE_PASSWORD:
+            params['password'] = settings.SNOWFLAKE_PASSWORD
+            params['authenticator'] = 'snowflake'
+            logger.info("Using password authentication")
+        else:
+            raise ValueError("Must provide either SNOWFLAKE_PASSWORD or SNOWFLAKE_PRIVATE_KEY_PATH")
+
+        return params
     
     def connect(self) -> snowflake.connector.connection.SnowflakeConnection:
         """
